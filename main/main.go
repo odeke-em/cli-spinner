@@ -9,18 +9,18 @@ import (
 )
 
 func main() {
-	spinChan := spinner.Spin(1)
+	spin := spinner.New(1)
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, os.Kill)
 	go func() {
 		_ = <-sigChan
-		spinChan <- nil
+		spin.Stop()
 		os.Exit(-1)
 	}()
 
 	throttle := time.Tick(1e9 / 1)
 	<-throttle
-	spinChan <- nil
+	spin.Stop()
 	<-throttle
 }
