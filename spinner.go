@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+var symbolMap = map[string]string{
+	" ⏳ ": "\033[37m",
+	" ⌛ ": "\033[38m",
+}
+
 type Spinner struct {
 	duration time.Duration
 	trigger  interface{}
@@ -65,14 +70,10 @@ func (s *Spinner) spin() error {
 		// Block till the first symbol comes through
 		<-s.sigChan
 
-		var spinner = map[string]string{
-			" ⏳ ": "\033[47m",
-			" ⌛ ": "\033[48m",
-		}
 		throttle := time.Tick(s.duration)
 		running := true
 		for running {
-			for segment, color := range spinner {
+			for segment, color := range symbolMap {
 				select {
 				case in := <-s.sigChan:
 					if in == s.sentinel {
