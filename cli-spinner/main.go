@@ -20,7 +20,9 @@ func main() {
 	}()
 
 	throttle := time.Tick(1e9 / 1)
-	<-throttle
+    for {
+	    <-throttle
+    }
 	spin.Stop()
 	<-throttle
 }
