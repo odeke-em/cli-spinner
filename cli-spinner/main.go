@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	spin := spinner.New(1)
+	spin := spinner.New(10)
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, os.Kill)
@@ -19,10 +19,10 @@ func main() {
 		os.Exit(-1)
 	}()
 
+	spin.Start()
 	throttle := time.Tick(1e9 / 1)
-    for {
-	    <-throttle
-    }
-	spin.Stop()
-	<-throttle
+
+	for {
+		<-throttle
+	}
 }
