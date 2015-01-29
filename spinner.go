@@ -6,6 +6,14 @@ import (
 	"time"
 )
 
+var symbolList = []string{
+	" | ",
+	" / ",
+	" – ",
+	" | ",
+	" \\ ",
+}
+
 var symbolMap = map[string]string{
 	" ⏳ ": "\033[37m",
 	" ⌛ ": "\033[38m",
@@ -73,7 +81,7 @@ func (s *Spinner) spin() error {
 		throttle := time.Tick(s.duration)
 		running := true
 		for running {
-			for segment, color := range symbolMap {
+			for _, segment := range symbolList {
 				select {
 				case in := <-s.sigChan:
 					if in == s.sentinel {
@@ -83,7 +91,7 @@ func (s *Spinner) spin() error {
 				default:
 				}
 				// Print it to stderr to avoid symbol getting into piped content
-				fmt.Fprintf(os.Stderr, "%s%s\033[00m\r", color, segment)
+				fmt.Fprintf(os.Stderr, "%s\r", segment)
 				<-throttle
 			}
 		}
