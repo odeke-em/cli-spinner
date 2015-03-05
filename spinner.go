@@ -26,6 +26,8 @@ type Spinner struct {
 	closed   bool
 	// sigChan: is the pipe that receives the start and stop
 	sigChan chan interface{}
+	// waitChan waits till the shutdown has fully propagated
+	waitChan chan interface{}
 }
 
 func New(freq int64) *Spinner {
@@ -34,9 +36,10 @@ func New(freq int64) *Spinner {
 	}
 	sp := Spinner{
 		duration: time.Duration(1e9 / freq),
+		sentinel: nil,
 		// sigChan will be created on .Start()
 		sigChan:  nil,
-		sentinel: nil,
+		waitChan: make(chan interface{}),
 	}
 
 	sp.trigger = &sp
@@ -55,6 +58,7 @@ func (s *Spinner) Stop() {
 	if !s.closed && s.sigChan != nil {
 		s.sigChan <- s.sentinel
 		close(s.sigChan)
+		<-s.waitChan
 		s.closed = true
 	}
 }
@@ -85,7 +89,9 @@ func (s *Spinner) spin() error {
 				select {
 				case in := <-s.sigChan:
 					if in == s.sentinel {
+						os.Stderr.Sync()
 						running = false
+						s.waitChan <- s.sentinel
 						break
 					}
 				default:
