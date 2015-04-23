@@ -10,8 +10,7 @@ var symbolList = []string{
 	" | ",
 	" / ",
 	" – ",
-	" | ",
-	" \\ ",
+	" \\ ",	
 }
 
 var symbolMap = map[string]string{
